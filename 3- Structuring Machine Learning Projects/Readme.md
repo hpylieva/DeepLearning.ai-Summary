@@ -345,7 +345,7 @@ In this example, you'll think that this is a variance problem, but because the d
   5. Test error
      - Calculate `degree of overfitting to dev set = test error - dev error`
      - Is the difference is big (positive) then maybe you need to find a bigger dev set (dev set and test set come from the same distribution, so the only way for there to be a huge gap here, for it to do much better on the dev set than the test set, is if you somehow managed to overfit the dev set).
-     
+![Bias/variance on mismatched train and dev/test setes](Images/bias-and-variance-analysis.png)
      
 - Unfortunately, there aren't many systematic ways to deal with data mismatch. There are some things to try about this in the next section.
 
