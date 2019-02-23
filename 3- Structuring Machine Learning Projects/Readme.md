@@ -278,7 +278,10 @@ Here are the course summary as its given on the course [link](https://www.course
     - If overall dev set error: 10%
       - Then errors due to incorrect data: 0.6%
       - Then errors due to other causes: 9.4%
-    - Then you should focus on the 9.4% error rather than the incorrect data.
+    - Then you should focus on the 9.4% error rather than the incorrect data.  
+    
+Note: the goal of the dev set is to help you select between two classifiers A and B. So you're trying out two classifiers A and B, and one has 2.1% error and the other has 1.9% error on your dev set. But you don't trust your dev set anymore to be correctly telling you whether this classifier is actually better than this because your 0.6% of these mistakes are due to incorrect labels. Then there's a good reason to go in and fix the incorrect labels in your dev set.   
+
 - Consider these guidelines while correcting the dev/test mislabeled examples:
   - Apply the same process to your dev and test sets to make sure they continue to come from the same distribution.
   - Consider examining examples your algorithm got right as well as ones it got wrong. (Not always done if you reached a good accuracy)
