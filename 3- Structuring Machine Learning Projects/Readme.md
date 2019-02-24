@@ -357,9 +357,9 @@ In this example, you'll think that this is a variance problem, but because the d
 - If your goal is to make the training data more similar to your dev set one of the techniques you can use **Artificial data synthesis** that can help you make more training data.
     - Combine some of your training data with something that can convert it to the dev/test set distribution.
       - Examples:
-        1. Combine normal audio with car noise to get audio with car noise example.
+        1. Combine normal audio with car noise to get audio with car noise example. 
         2. Generate cars using 3D graphics in a car classification example.
-    - Be cautious and bear in mind whether or not you might be accidentally simulating data only from a tiny subset of the space of all possible examples because your NN might overfit these generated data (like particular car noise or a particular design of 3D graphics cars).
+    - Be cautious and bear in mind whether or not you might be accidentally simulating data only from a tiny subset of the space of all possible examples because your NN might overfit these generated data (like particular car noise or a particular design of 3D graphics cars). So if you mix 10 000 hours of speech data with only 1 hour of car noize then the algorithms may overfit to this part of car noize. To avoid this effect it is better to have 10k of car noize to mix it with speech data. And even beter is to have different kinds of noize (if applicable).
 
 ### Transfer learning
 
