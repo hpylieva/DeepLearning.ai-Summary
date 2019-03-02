@@ -363,28 +363,33 @@ In this example, you'll think that this is a variance problem, but because the d
 
 ### Transfer learning
 
-- Apply the knowledge you took in a task A and apply it in another task B.
-- For example, you have trained a cat classifier with a lot of data, you can use the part of the trained NN it to solve x-ray classification problem.
+Apply the knowledge you took in a task A and apply it in another task B.
+- For example, you have trained a cat classifier with a lot of data, you can use the part of the trained NN it to solve x-ray classification problem (also images).
 - To do transfer learning, delete the last layer of NN and it's weights and:
   1. Option 1: if you have a small data set - keep all the other weights as a fixed weights. Add a new last layer(-s) and initialize the new layer weights and feed the new data to the NN and learn the new weights.
-  2. Option 2: if you have enough data you can retrain all the weights.
-- Option 1 and 2 are called **fine-tuning** and training on task A called **pretraining**.
-- When transfer learning make sense:
+  2. Option 2: **if you have enough data** you can retrain all the weights.
+Option 1 and 2 are called **fine-tuning** and training on task A called **pretraining**.
+NLP example of transfer learning: we trained a system: input audio, dows speech recognition. We can remove the last layer and fine tune this network for wake/trigger-word detection. But it is even better to retrain more last layers (randomly initialized). Here we have laerned from a big dataset (10k hours) how a human voice sounds like, what are components of human speech.
+
+When transfer learning makes sense:
   - Task A and B have the same input X (e.g. image, audio).
   - You have a lot of data for the task A you are transferring from and relatively less data for the task B your transferring to.
   - Low level features from task A could be helpful for learning task B.
 
+Transfer learning is a sequential process: we learn from task A and after that learn on task B with knowledge transferred from results of learning on task A.
+
 ### Multi-task learning
 
 - Whereas in transfer learning, you have a sequential process where you learn from task A and then transfer that to task B. In multi-task learning, you start off simultaneously, trying to have one neural network do several things at the same time. And then each of these tasks helps hopefully all of the other tasks. 
-- Example:
+Example:
   - You want to build an object recognition system that detects pedestrians, cars, stop signs, and traffic lights (image has multiple labels).
-  - Then Y shape will be `(4,m)` because we have 4 classes and each one is a binary one.
+  - Then Y shape will be `(4,m)` because we have 4 classes and each one is a binary one (so we find the probability of each class separately, not the probability of the input is of one of 10 classes).
   - Then   
   `Cost = (1/m) * sum(sum(L(y_hat(i)_j, y(i)_j))), i = 1..m, j = 1..4`, where   
   `L = - y(i)_j * log(y_hat(i)_j) - (1 - y(i)_j) * log(1 - y_hat(i)_j)`
+  And the main difference between this and softmax regression, is that unlike softmax regression, which assigned a single label to single example. This one image can have multiple labels.
 - In the last example you could have trained 4 neural networks separately but if some of the earlier features in neural network can be shared between these different types of objects, then you find that training one neural network to do four things results in better performance than training 4 completely separate neural networks to do the four tasks separately. 
-- Multi-task learning will also work if y isn't complete for some labels. For example:
+- It turns out that multi-task learning also works even if some of the images we'll label only some of the objects (Multi-task learning will also work if y isn't complete for some labels. ). For example:
   ```
   Y = [1 ? 1 ...]
       [0 0 1 ...]
@@ -392,16 +397,16 @@ In this example, you'll think that this is a variance problem, but because the d
   ```
   - And in this case it will do good with the missing data, just the loss function will be different:   
     `Loss = (1/m) * sum(sum(L(y_hat(i)_j, y(i)_j) for all j which y(i)_j != ?))`
-- Multi-task learning makes sense:
+Multi-task learning makes sense:
   1. Training on a set of tasks that could benefit from having shared lower-level features.
   2. Usually, amount of data you have for each task is quite similar.
   3. Can train a big enough network to do well on all the tasks.
-- If you can train a big enough NN, the performance of the multi-task learning compared to splitting the tasks is better.
-- Today transfer learning is used more often than multi-task learning.
+If you can train a big enough NN, the performance of the multi-task learning compared to splitting the tasks is better.
+Today transfer learning is used more often than multi-task learning.
 
 ### What is end-to-end deep learning?
 
-- Some systems have multiple stages to implement. An end-to-end deep learning system implements all these stages with a single NN.
+Some systems have multiple stages to implement. An end-to-end deep learning system implements all these stages with a single NN.
 - Example 1:
   - Speech recognition system:
     ```
@@ -409,14 +414,14 @@ In this example, you'll think that this is a variance problem, but because the d
     Audio ---------------------------------------> Transcript    # end-to-end deep learning system
     ```
   - End-to-end deep learning gives data more freedom, it might not use phonemes when training!
-- To build the end-to-end deep learning system that works well, we need a big dataset (more data then in non end-to-end system). If we have a small dataset the ordinary implementation could work just fine.
+- To build the end-to-end deep learning system that works well, we need a huge dataset (more data then in non end-to-end system, 10k h of audio vs 3k hours). If we have a small dataset the ordinary implementation could work just fine.
 - Example 2:
   - Face recognition system:
     ```
     Image ---------------------> Face recognition    # end-to-end deep learning system
-    Image --> Face detection --> Face recognition    # deep learning system - best approach for now
+    Image --> Face detection (crop from the whole image) --> Face recognition    # deep learning system - best approach for now
     ```
-  - In practice, the best approach is the second one for now.
+ In practice, the best approach is the second one for now.
   - In the second implementation, it's a two steps approach where both parts are implemented using deep learning.
   - Its working well because it's harder to get a lot of pictures with people in front of the camera than getting faces of people and compare them.
   - In the second implementation at the last step, the NN takes two faces as an input and outputs if the two faces are the same person or not.
@@ -436,13 +441,16 @@ In this example, you'll think that this is a variance problem, but because the d
   - In this example non-end-to-end system works better because we don't have enough data to train end-to-end system.
 
 ### Whether to use end-to-end deep learning
+(When to use and when to not)   
 
-- Pros of end-to-end deep learning:
-  - Let the data speak. By having a pure machine learning approach, your NN learning input from X to Y may be more able to capture whatever statistics are in the data, rather than being forced to reflect human preconceptions.
-  - Less hand-designing of components needed.
+- Pros of end-to-end deep learning:  
+  - It lets the data speak. By having a pure machine learning approach, your NN learning input from X to Y may be more able to capture whatever statistics are in the data, rather than being forced to reflect human preconceptions.
+  - Less hand-designing of components needed.  
+  
 - Cons of end-to-end deep learning:
   - May need a large amount of data.
-  - Excludes potentially useful hand-design components (it helps more on the smaller dataset).
+  - Excludes potentially useful hand-design components (it helps more on the smaller dataset).  
+  
 - Applying end-to-end deep learning:
   - Key question: Do you have sufficient data to learn a function of the **complexity** needed to map x to y?
   - Use ML/DL to learn some individual components.
