@@ -84,7 +84,7 @@ Here are the course summary as its given on the course [link](https://www.course
 - Make sure the dev and test set are coming from the same distribution.
   - For example if cat training pictures is from the web and the dev/test pictures are from users cell phone they will mismatch. It is better to make sure that dev and test set are from the same distribution.
 - The dev set rule is to try them on some of the good models you've created.
-- Its OK to only have a dev set without a testing set. But a lot of people in this case call the dev set as the test set. A better terminology is to call it a dev set as its used in the development.
+- Its OK to only have a dev set **without** a testing set. But a lot of people in this case call the dev set as the test set. A better terminology is to call it a dev set as its used in the development.
 
 ### Bias / Variance
 
@@ -122,7 +122,7 @@ Here are the course summary as its given on the course [link](https://www.course
   - Try regularization.
   - Try a different model that is suitable for your data.
 - You should try the previous two points until you have a low bias and low variance.
-- In the older days before deep learning, there was a "Bias/variance tradeoff". But because now you have more options/tools for solving the bias and variance problem its really helpful to use deep learning.
+- In the older days before deep learning, there was a "Bias/variance tradeoff" (if we increase bias, then we decrease variance). But now we can tweak bias without hurting variance and vice versa. In DL we have more optiions of increasing bias and variance.
 - Training a bigger neural network never hurts.
 
 ### Regularization
@@ -142,15 +142,15 @@ Here are the course summary as its given on the course [link](https://www.course
   - `lambda` here is the regularization parameter (hyperparameter)
 - Regularization for NN:
   - The normal cost function that we want to minimize is:   
-    `J(W1,b1...,WL,bL) = (1/m) * Sum(L(y(i),y'(i)))`
+    `J(W1,b1...,WL,bL) = (1/m) * Sum(L(y(i),y'(i)))`, where L(.,.) is loss of an NN
 
   - The L2 regularization version:   
-    `J(w,b) = (1/m) * Sum(L(y(i),y'(i))) + (lambda/2m) * Sum((||W[l]||^2)`
+    `J(w,b) = (1/m) * Sum(L(y(i),y'(i))) + (lambda/2m) * Sum((||W[l]||^2)`, `W` here is a matrix,  `Sum(|w[i]|^2)`- Frobenious norm of matrix (sum of squared elements of matrix`W`
 
   - We stack the matrix as one vector `(mn,1)` and then we apply `sqrt(w1^2 + w2^2.....)`
 
   - To do back propagation (old way):   
-    `dw[l] = (from back propagation)`
+    `dw[l] = \frac{\partial J}{\partial w}(from back propagation)`
 
   - The new way:   
     `dw[l] = (from back propagation) + lambda/m * w[l]`
@@ -166,18 +166,19 @@ Here are the course summary as its given on the course [link](https://www.course
 
   - In practice this penalizes large weights and effectively limits the freedom in your model.
 
-  - The new term `(1 - (learning_rate*lambda)/m) * w[l]`  causes the **weight to decay** in proportion to its size.
+  - The new term `(1 - (learning_rate*lambda)/m) * w[l]`  causes the **weight to decay** (that is how L2 regulariation is also called in DL) in proportion to its size.
 
 
 ### Why regularization reduces overfitting?
 
 Here are some intuitions:
+![](Images/09-intuition-regulaization)
   - Intuition 1:
      - If `lambda` is too large - a lot of w's will be close to zeros which will make the NN simpler (you can think of it as it would behave closer to logistic regression).
      - If `lambda` is good enough it will just reduce some weights that makes the neural network overfit.
   - Intuition 2 (with _tanh_ activation function):
      - If `lambda` is too large, w's will be small (close to zero) - will use the linear part of the _tanh_ activation function, so we will go from non linear activation to _roughly_ linear which would make the NN a _roughly_ linear classifier.
-     - If `lambda` good enough it will just make some of _tanh_ activations _roughly_ linear which will prevent overfitting.
+     - If `lambda` good enough it will just make some of _tanh_ activations _roughly_ linear which will prevent overfitting as linear functions cannot fit to higly non linear boudaries.
      
 _**Implementation tip**_: if you implement gradient descent, one of the steps to debug gradient descent is to plot the cost function J as a function of the number of iterations of gradient descent and you want to see that the cost function J decreases **monotonically** after every elevation of gradient descent with regularization. If you plot the old definition of J (no regularization) then you might not see it decrease monotonically.
 
@@ -185,7 +186,7 @@ _**Implementation tip**_: if you implement gradient descent, one of the steps to
 ### Dropout Regularization
 
 - In most cases Andrew Ng tells that he uses the L2 regularization.
-- The dropout regularization eliminates some neurons/weights on each iteration based on a probability.
+- The dropout regularization eliminates some neurons/weights on each iteration based on a probability engineer sets. SO for each example we drop and keep randomly chosen neurons. As a result we have a smaler network.
 - A most common technique to implement dropout is called "Inverted dropout".
 - Code for Inverted dropout:
 
@@ -197,23 +198,26 @@ _**Implementation tip**_: if you implement gradient descent, one of the steps to
 
   a3 = np.multiply(a3,d3)   # keep only the values in d3
 
-  # increase a3 to not reduce the expected value of output
+  # increase a3 to not reduce the expected value of output: z4 := w4*a3 + b4
   # (ensures that the expected value of a3 remains the same) - to solve the scaling problem
   a3 = a3 / keep_prob       
   ```
+  This tecnhique of dividing the final value on `keep_prob` is called **inverted dropout technique**. IT leads to less scaling problems suring test time of model. The most common inmpelemtation fo dropout today is this technique.
 - Vector d[l] is used for forward and back propagation and is the same for them, but it is different for each iteration (pass) or training example.
 - At test time we don't use dropout. If you implement dropout at test time - it would add noise to predictions.
 
 ### Understanding Dropout
 
+Why does dropout work as reguarizer?
+
 - In the previous video, the intuition was that dropout randomly knocks out units in your network. So it's as if on every iteration you're working with a smaller NN, and so using a smaller NN seems like it should have a regularizing effect.
-- Another intuition: can't rely on any one feature, so have to spread out weights.
-- It's possible to show that dropout has a similar effect to L2 regularization.
-- Dropout can have different `keep_prob` per layer.
+- Another intuition: NN can't rely on any one feature, so have to spread out weights. Dropping out the weights randomly on each iteration results in shrinking off the square norm of weights (so thrinking the weights).
+- It's possible to show that dropout is an adaptive form of L2 regularization. But L2 penalty on different weights are different, depending on the size of the activations being multiplied that way.
+- Dropout can have different `keep_prob` per layer. We can set a lower `keep_prob` for a big (highly dimensional) layer as big layers can lead to overfitting.
 - The input layer dropout has to be near 1 (or 1 - no dropout) because you don't want to eliminate a lot of features.
 - If you're more worried about some layers overfitting than others, you can set a lower `keep_prob` for some layers than others. The downside is, this gives you even more hyperparameters to search for using cross-validation. One other alternative might be to have some layers where you apply dropout and some layers where you don't apply dropout and then just have one hyperparameter, which is a `keep_prob` for the layers for which you do apply dropouts.
 - A lot of researchers are using dropout with Computer Vision (CV) because they have a very big input size and almost never have enough data, so overfitting is the usual problem. And dropout is a regularization technique to prevent overfitting.
-- A downside of dropout is that the cost function J is not well defined and it will be hard to debug (plot J by iteration).
+- A downside of dropout is that the cost function J becomes not well defined and it will be hard to debug (plot J by iteration).
   - To solve that you'll need to turn off dropout, set all the `keep_prob`s to 1, and then run the code and check that it monotonically decreases J and then turn on the dropouts again.
 
 ### Other regularization methods
@@ -226,11 +230,13 @@ _**Implementation tip**_: if you implement gradient descent, one of the steps to
   - New data obtained using this technique isn't as good as the real independent data, but still can be used as a regularization technique.
 - **Early stopping**:
   - In this technique we plot the training set and the dev set cost together for each iteration. At some iteration the dev set cost will stop decreasing and will start increasing.
-  - We will pick the point at which the training set error and dev set error are best (lowest training cost with lowest dev cost).
-  - We will take these parameters as the best parameters.
+  - We will pick the point (epoch) at which the training set error and dev set error are best (lowest training cost with lowest dev cost).
+  - We will take these parameters of model on this epoch as the best parameters. Duting training weights are increasing on each iteration. The earlier we stop training, the smaller weights will be, so model will be less prone to overfitting.
     - ![](Images/02-_Early_stopping.png)
   - Andrew prefers to use L2 regularization instead of early stopping because this technique simultaneously tries to minimize the cost function and not to overfit which contradicts the orthogonalization approach (will be discussed further).
-  - But its advantage is that you don't need to search a hyperparameter like in other regularization approaches (like `lambda` in L2 regularization).
+  Orthogonalization is about working on one task in one period of time. So in case of model training process, we want to first minimize the cost function and then try not to overfit due to that approach.
+  - The advantage of early stopping is that you don't need to search a hyperparameter like in other regularization approaches (like `lambda` in L2 regularization).
+  Alternative to early stopping is to train a NN with L2-regularization as long as possible.
 - **Model Ensembles**:
   - Algorithm:
     - Train multiple independent models.
@@ -335,6 +341,15 @@ _**Implementation tip**_: if you implement gradient descent, one of the steps to
   - You can first turn off dropout (set `keep_prob = 1.0`), run gradient checking and then turn on dropout again.
 - Run gradient checking at random initialization and train the network for a while maybe there's a bug which can be seen when w's and b's become larger (further from 0) and can't be seen on the first iteration (when w's and b's are very small).
 
+### Notes prom programming assignments
+- In general, *initializing all the weights to zero* results in the network **failing to break symmetry**. This means that every neuron in each layer will learn the same thing, and you might as well be training a neural network with $n^{[l]}=1$ for every layer, and the network is no more powerful than a linear classifier such as logistic regression. 
+
+- If we initialize our weights to large random values (scaled by \*10) and your biases to zeros, then the next is observed:       - The cost starts very high. This is because with large random-valued weights, the last activation (sigmoid) outputs results that are very close to 0 or 1 for some examples, and when it gets that example wrong it incurs a very high loss for that example. Indeed, when  log(a[3])=log(0)log⁡(a[3])=log⁡(0) , the loss goes to infinity.
+      - Poor initialization can lead to vanishing/exploding gradients, which also slows down the optimization algorithm.
+      - If you train this network longer you will see better results, but initializing with overly large random numbers slows down the optimization.
+
+- "He Initialization"; this is named for the first author of He et al., 2015. (If you have heard of "Xavier initialization", this is similar except Xavier initialization uses a scaling factor for the weights $W^{[l]}$ of `sqrt(1./layers_dims[l-1])` where He initialization would use `sqrt(2./layers_dims[l-1])`.). The model with He initialization separates the blue and the red dots very well in a small number of iterations.
+
 ### Initialization summary
 
 - The weights W<sup>[l]</sup> should be initialized randomly to break symmetry
@@ -347,7 +362,7 @@ _**Implementation tip**_: if you implement gradient descent, one of the steps to
 
 - Don't intialize to values that are too large
 
-- He initialization works well for networks with ReLU activations. 
+- He (from He et all paper) initialization works well for networks with ReLU activations. 
 
 ### Regularization summary
 
