@@ -157,7 +157,7 @@ Here are the course summary as its given on the course [link](https://www.course
   - if `y = 1` ==> `L(y',1) = -log(y')`  ==> we want `y'` to be the largest   ==> `y`' biggest value is 1
   - if `y = 0` ==> `L(y',0) = -log(1-y')` ==> we want `1-y'` to be the largest ==> `y'` to be smaller as possible because it can only has 1 value.
 - Then the Cost function will be: `J(w,b) = (1/m) * Sum(L(y'[i],y[i]))`
-- The loss function computes the error for a single training example; the cost function is the average of the loss functions of the entire training set.
+- The loss function computes the error for a single training example; the cost function is the average of the loss functions of the entire training set. So the loss function measures how well our parameters `W` and `b` are doing on the entire dataset.
 
 ### Gradient Descent
 
@@ -436,13 +436,14 @@ Here are the course summary as its given on the course [link](https://www.course
 
     Or
     `A = np.tanh(z)   # Where z is the input matrix`
-- It turns out that the tanh activation usually works better than sigmoid activation function for hidden units because the mean of its output is closer to zero, and so it centers the data better for the next layer.
-- Sigmoid or Tanh function disadvantage is that if the input is too small or too high, the slope will be near zero which will cause us the gradient decent problem.
+- The *tanh activation usually works better than sigmoid activation function for hidden units* because the mean of its output is closer to zero, and so it centers the data better for the next layer and though makes learning of the next layer easier.
+- Andre suggests to use tanh activation instead of sigmoid foa all hidden layers but output one. When output is a binary classification, it is better to have the output between 0 and 1 , than between -1 and 1. So for output layer we might use sigmoid.
+- Sigmoid or Tanh function disadvantage is that if the input is too small or too high (tails of functions), the slope will be near zero which will slow down the gradient descent. That is why ReLU was introduced to avoid this problem.
 - One of the popular activation functions that solved the slow gradient decent is the RELU function.
   `RELU = max(0,z) # so if z is negative the slope is 0 and if z is positive the slope remains linear.`
-- So here is some basic rule for choosing activation functions, if your classification is between 0 and 1, use the output activation as sigmoid and the others as RELU.
-- Leaky RELU activation function different of RELU is that if the input is negative the slope will be so small. It works as RELU but most people uses RELU.
-  `Leaky_RELU = max(0.01z,z)  #the 0.01 can be a parameter for your algorithm.`
+- So here is some **basic rule for choosing activation functions, if your classification is between 0 and 1, use the output activation as sigmoid and the others as RELU.**
+- Leaky RELU activation function different of RELU is that if the input is negative the slope will be small but not zero. It works as RELU but most people use RELU on practice.
+  `Leaky_RELU = max(0.01*z,z)  #the 0.01 can be a parameter for your algorithm.`
 - In NN you will decide a lot of choices like:
   - No of hidden layers.
   - No of neurons in each hidden layer.
@@ -450,12 +451,14 @@ Here are the course summary as its given on the course [link](https://www.course
   - Activation functions.
   - And others..
 - It turns out there are no guide lines for that. You should try all activation functions for example.
+![](Images/12.png)
+
 
 ### Why do you need non-linear activation functions?
 
 - If we removed the activation function from our algorithm that can be called linear activation function.
-- Linear activation function will output linear activations
-  - Whatever hidden layers you add, the activation will be always linear like logistic regression (So its useless in a lot of complex problems)
+- Linear activation function will output linear activations. If all activations in an NN are linear - the output will be a linear function of an input. We cannot approximate (or model) complex functions (non linear) with liiner function.
+- If we make hidden layers' activations linear and put sigmoid as activation of the output layer - our NN won't be more powerful than logistic regression, without any fidden layers (So its useless in a lot of complex problems)
 - You might use linear activation function in one place - in the output layer if the output is real numbers (regression problem). But even in this case if the output value is non-negative you could use RELU instead.
 
 ### Derivatives of activation functions
@@ -552,7 +555,7 @@ Here are the course summary as its given on the course [link](https://www.course
   b1 = np.zeros((2,1))                  # its ok to have b as zero, it won't get us to the symmetry breaking problem
   ```
 
-- We need small values because in sigmoid (or tanh), for example, if the weight is too large you are more likely to end up even at the very start of training with very large values of Z. Which causes your tanh or your sigmoid activation function to be saturated, thus slowing down learning. If you don't have any sigmoid or tanh activation functions throughout your neural network, this is less of an issue.
+- **We need small values because in sigmoid (or tanh), for example, if the weight is too large you are more likely to end up even at the very start of training with very large values of Z.** Which causes your tanh or your sigmoid activation function to be saturated, thus slowing down learning. If you don't have any sigmoid or tanh activation functions throughout your neural network, this is less of an issue.
 
 - Constant 0.01 is alright for 1 hidden layer networks, but if the NN is deep this number can be changed but it will always be a small number.
 
